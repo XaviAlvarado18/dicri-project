@@ -33,6 +33,11 @@ app.use("/api/indicios", indiciosRoutes);
 // Swagger
 app.use("/api/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
+app.get("/api/docs-json", (_req, res) => {
+  res.json(swaggerSpec);
+});
+
+
 // Manejo de errores básico
 app.use(
   (err: unknown, _req: Request, res: Response, _next: NextFunction): void => {
