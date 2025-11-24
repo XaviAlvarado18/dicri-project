@@ -24,7 +24,7 @@ export default function ExpedientesFilters({ onFiltrar, loading = false }: Exped
 
   return (
     <Card
-      bordered={false}
+      variant="outlined"
       className="mb-6 shadow-sm rounded-xl bg-white"
       bodyStyle={{ padding: "1.25rem 1.5rem" }}
     >
@@ -45,10 +45,10 @@ export default function ExpedientesFilters({ onFiltrar, loading = false }: Exped
             className="min-w-[180px]"
           >
             <Option value="">Todos</Option>
-            <Option value="REGISTRADO">Registrado</Option>
-            <Option value="EN_REVISION">En revisión</Option>
-            <Option value="APROBADO">Aprobado</Option>
-            <Option value="RECHAZADO">Rechazado</Option>
+            <Option value="REG">Registrado</Option>
+            <Option value="PROC">En revisión</Option>
+            <Option value="FINAL">Aprobado</Option>
+            <Option value="REJ">Rechazado</Option>
           </Select>
         </Form.Item>
 

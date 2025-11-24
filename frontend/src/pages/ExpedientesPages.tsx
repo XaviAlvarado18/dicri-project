@@ -32,11 +32,6 @@ export default function ExpedientesPage() {
     void recargar(nuevosFiltros);
   };
 
-  const handleRowClick = (idExpediente: number) => {
-    navigate(`/expedientes/${idExpediente}`);
-  };
-
-
   return (
     <Layout>
       {/* Contenedor principal como en la imagen: ancho máximo y fondo claro */}

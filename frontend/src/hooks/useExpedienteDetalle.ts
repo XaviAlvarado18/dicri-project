@@ -1,5 +1,5 @@
 // src/hooks/useExpedienteDetalle.ts
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { obtenerExpedienteDetalleService } from "../services/expedientes.services";
 import type { ExpedienteDetalle } from "../types/models";
 
@@ -8,24 +8,23 @@ export function useExpedienteDetalle(id?: number) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<unknown>(null);
 
-  useEffect(() => {
+  const fetchData = useCallback(async () => {
     if (!id) return;
-
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        const detalle = await obtenerExpedienteDetalleService(id);
-        setData(detalle);
-      } catch (err) {
-        setError(err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    void fetchData();
+    try {
+      setLoading(true);
+      setError(null);
+      const detalle = await obtenerExpedienteDetalleService(id);
+      setData(detalle);
+    } catch (err) {
+      setError(err);
+    } finally {
+      setLoading(false);
+    }
   }, [id]);
 
-  return { data, loading, error };
+  useEffect(() => {
+    void fetchData();
+  }, [fetchData]);
+
+  return { data, loading, error, recargar: fetchData };
 }
