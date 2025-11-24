@@ -1,6 +1,6 @@
 import bcrypt from "bcryptjs";
 import type { NextFunction, Request, Response } from "express";
-import jwt from "jsonwebtoken";
+import jwt, { type Secret, type SignOptions } from "jsonwebtoken";
 import { getConnection, sql } from "../config/db.js";
 import type { UsuarioDB } from "../types/models.js";
 
@@ -31,10 +31,15 @@ export const login = async (
       return;
     }
 
+    const secret = process.env.JWT_SECRET as Secret;
+    const options: SignOptions = {
+      expiresIn: (process.env.JWT_EXPIRES_IN ?? "8h") as unknown as SignOptions["expiresIn"],
+    };
+
     const token = jwt.sign(
-      { idUsuario: user.IdUser, rol: user.Role},
-      process.env.JWT_SECRET as string,
-      { expiresIn: process.env.JWT_EXPIRES_IN || "8h" }
+      { idUsuario: user.IdUser, rol: user.Role },
+      secret,
+      options
     );
 
     res.json({

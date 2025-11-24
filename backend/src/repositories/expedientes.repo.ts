@@ -98,10 +98,15 @@ export const repoObtenerExpedienteDetalle = async (
     // Si prefieres query directa:
     // .query(`... SQL de arriba ...`);
 
-  const expedienteRow = result.recordsets?.[0]?.[0];
+  const rs: any = result;
+
+  const expedienteRow = rs.recordsets?.[0]?.[0];
+
+
   if (!expedienteRow) return undefined;
 
-  const evidenciasRows = (result.recordsets?.[1] ?? []) as EvidenciaDetalle[];
+  const evidenciasRows = (rs.recordsets?.[1] ?? []) as EvidenciaDetalle[];
+
   const detalle: ExpedienteDetalle = {
     ...expedienteRow,
     Evidencias: evidenciasRows,
