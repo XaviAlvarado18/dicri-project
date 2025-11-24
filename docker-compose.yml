@@ -1,40 +1,52 @@
-version: "3.9"
-
 services:
-  db:
+  sqlserver:
     image: mcr.microsoft.com/mssql/server:2022-latest
-    container_name: mp-dicri-sql
+    container_name: dicri-sqlserver
     environment:
-      - ACCEPT_EULA=Y
-      - SA_PASSWORD=YourStrong!Passw0rd
+      ACCEPT_EULA: "Y"
+      SA_PASSWORD: "YourStrong!Passw0rd"
+      MSSQL_PID: "Express"
     ports:
       - "1433:1433"
     volumes:
-      - sql_data:/var/opt/mssql
-      - ./db:/scripts
-    restart: unless-stopped
+      - sqlserver_data:/var/opt/mssql
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          " /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P YourStrong!Passw0rd -Q 'SELECT 1' || exit 1",
+        ]
+      interval: 10s
+      timeout: 10s
+      retries: 10
 
   backend:
     build: ./backend
-    container_name: mp-dicri-backend
+    container_name: dicri-backend
     env_file:
       - ./backend/.env
+    environment:
+      # sobre-escribimos lo importante para Docker
+      DB_SERVER: sqlserver
+      DB_USER: dicri_admin
+      DB_PASSWORD: YourStrong!Passw0rd
+      DB_NAME: DicriProjectDB
+      PORT: 3000
+      JWT_SECRET: super-secret-jwt
+    depends_on:
+      - sqlserver
     ports:
       - "3000:3000"
-    depends_on:
-      - db
-    restart: unless-stopped
 
   frontend:
     build: ./frontend
-    container_name: mp-dicri-frontend
+    container_name: dicri-frontend
     environment:
       - VITE_API_URL=http://backend:3000/api
-    ports:
-      - "5173:5173"
     depends_on:
       - backend
-    restart: unless-stopped
+    ports:
+      - "5173:80"
 
 volumes:
-  sql_data:
+  sqlserver_data:

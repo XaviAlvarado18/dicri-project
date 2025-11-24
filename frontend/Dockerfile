@@ -1,12 +1,26 @@
-FROM node:20-alpine
+# frontend/Dockerfile
+
+# Etapa 1: build de la SPA
+FROM node:18-alpine AS build
 
 WORKDIR /app
 
 COPY package*.json ./
-RUN npm install
+RUN npm ci
 
-COPY . .
+COPY . ./
+# Ojo: VITE_API_URL debe apuntar al backend dentro de Docker (ver docker-compose)
+RUN npm run build
 
-EXPOSE 5173
+# Etapa 2: servir estáticos con Nginx
+FROM nginx:1.27-alpine
 
-CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0", "--port", "5173"]
+# Copiar build de Vite
+COPY --from=build /app/dist /usr/share/nginx/html
+
+# Configuración simple de Nginx para SPA
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+
+EXPOSE 80
+
+CMD ["nginx", "-g", "daemon off;"]
