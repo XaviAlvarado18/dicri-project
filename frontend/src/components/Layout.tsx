@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { useAuth } from "../context/AuthContext";
 import HeadBar from "./HeadBar";
 
 interface LayoutProps {
@@ -6,6 +7,8 @@ interface LayoutProps {
 }
 
 export default function Layout({ children }: LayoutProps) {
+
+  const { user } = useAuth();
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -15,8 +18,8 @@ export default function Layout({ children }: LayoutProps) {
   return (
     <div style={{ fontFamily: "sans-serif" }}>
       <HeadBar
-        userName="Juan Pérez"
-        userRole="Coordinador"
+        userName={user?.nombre || "Usuario"}
+        userRole={user?.rol || "ROL_DESCONOCIDO"}
         onLogout={handleLogout}
       />
       <main style={{ padding: 20 }}>{children}</main>

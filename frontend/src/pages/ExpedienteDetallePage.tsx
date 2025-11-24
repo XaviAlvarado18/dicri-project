@@ -15,6 +15,8 @@ import type { ColumnsType } from "antd/es/table";
 import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
+import { PlusOutlined } from "@ant-design/icons";
+import CrearIndicioModal from "../components/CrearIndicioModal";
 import Layout from "../components/Layout";
 import { useExpedienteDetalle } from "../hooks/useExpedienteDetalle";
 import {
@@ -37,6 +39,8 @@ export default function ExpedienteDetallePage() {
   const [justificacion, setJustificacion] = useState("");
   const [accionLoading, setAccionLoading] = useState(false);
   const [rejectOpen, setRejectOpen] = useState(false);
+
+  const [indicioModalOpen, setIndicioModalOpen] = useState(false);
 
   const handleAprobar = async () => {
     if (!expedienteId) return;
@@ -248,6 +252,19 @@ export default function ExpedienteDetallePage() {
             </Descriptions>
           </Card>
 
+          {/* Línea con botón principal */}
+          <div className="flex justify-end mb-3">
+            <Button
+                size="small"
+                type="primary"
+                icon={<PlusOutlined />}
+                onClick={() => setIndicioModalOpen(true)}
+                className="rounded-full px-5 py-5 bg-[#1d4ed8] hover:!bg-[#1e40af]"
+              >
+                Agregar indicio
+            </Button>
+          </div>
+
           {/* Indicios / Evidencias */}
           <Card
             bordered={false}
@@ -258,7 +275,11 @@ export default function ExpedienteDetallePage() {
               <h3 className="text-white font-semibold">
                 Indicios registrados en el expediente
               </h3>
+
+
             </div>
+
+
 
             <div className="p-4">
               <Table
@@ -365,6 +386,15 @@ export default function ExpedienteDetallePage() {
           </Card>
         </div>
       </div>
+      {/* Modal para crear indicio */}
+      {expedienteId && (
+        <CrearIndicioModal
+          open={indicioModalOpen}
+          onClose={() => setIndicioModalOpen(false)}
+          onCreated={() => recargar()}
+          idExpediente={expedienteId}
+        />
+      )}
     </Layout>
   );
 }

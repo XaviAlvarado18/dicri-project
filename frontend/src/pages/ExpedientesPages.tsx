@@ -1,9 +1,13 @@
+import { PlusOutlined } from "@ant-design/icons";
 import {
+  Button,
   DatePicker,
   Select,
   Typography
 } from "antd";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import CrearExpedienteModal from "../components/CrearExpedienteModal";
 import ExpedientesFilters from "../components/ExpedientesFilters";
 import ExpedientesTable from "../components/ExpedientesTable";
 import Layout from "../components/Layout";
@@ -25,11 +29,17 @@ interface Filtros {
 export default function ExpedientesPage() {
   const navigate = useNavigate();
   const { expedientes, loading, recargar } = useExpedientes();
+  const [modalOpen, setModalOpen] = useState(false);
 
   // Cuando el usuario aplica filtros desde ExpedientesFilters
   const handleFiltrar = (nuevosFiltros: FiltrosExpedientes) => {
     // El hook se encarga de hacer la petición y actualizar el estado
     void recargar(nuevosFiltros);
+  };
+
+
+  const handleNuevoExpediente = () => {
+    setModalOpen(true);
   };
 
   return (
@@ -45,11 +55,25 @@ export default function ExpedientesPage() {
             Gestión de Evidencias - Expedientes DICRI
           </Title>
 
+          {/* Línea con botón principal */}
+          <div className="flex justify-end mb-3">
+            <Button
+              type="primary"
+              icon={<PlusOutlined />}
+              onClick={handleNuevoExpediente}
+              className="rounded-full px-5 font-semibold bg-[#1d4ed8] hover:!bg-[#1e40af] border-none"
+            >
+              Nuevo expediente
+            </Button>
+          </div>
+
           {/* Componente de Filtros */}
           <ExpedientesFilters 
             onFiltrar={handleFiltrar} 
             loading={loading} 
           />
+
+
 
           {/* Componente de Tabla con Contenedor */}
           <TableContainer titulo="Expedientes registrados en el sistema">
@@ -68,6 +92,12 @@ export default function ExpedientesPage() {
 
         </div>
       </div>
+      {/* Modal de creación */}
+      <CrearExpedienteModal
+        open={modalOpen}
+        onClose={() => setModalOpen(false)}
+        onCreated={() => recargar()} // recarga lista después de crear
+      />
     </Layout>
   );
 }

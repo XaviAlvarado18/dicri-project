@@ -7,7 +7,7 @@ import { authMiddleware } from "../middlewares/auth.middleware.js";
 
 const router = Router();
 
-router.post("/", authMiddleware(["TECNICO"]), crearIndicio);
+router.post("/", authMiddleware(["TECNICO", "ADMIN"]), crearIndicio);
 router.get("/", authMiddleware(["TECNICO", "COORDINADOR", "ADMIN"]), listarIndiciosPorExpediente);
 
 export default router;

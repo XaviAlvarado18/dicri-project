@@ -1,31 +1,32 @@
 import { LockOutlined, UserOutlined } from "@ant-design/icons";
 import { Button, Card, Form, Input, Typography, message } from "antd";
-import { useState } from "react";
-import api from "../api/client";
 
 // Assets
+import { useNavigate } from "react-router-dom";
 import logoMP from "../../assets/MP_logo.png";
+import { useAuth } from "../context/AuthContext";
 
 const { Title, Text } = Typography;
 
 export default function LoginPage() {
-  const [loading, setLoading] = useState(false);
+  // const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+  const { login, loading } = useAuth();
 
-  const onFinish = async (values: any) => {
-    setLoading(true);
+  const onFinish = async (values: { username: string; password: string }) => {
     try {
-      const res = await api.post("/auth/login", {
+      await login({
         username: values.username,
         password: values.password,
       });
-      
-      localStorage.setItem("token", res.data.token);
+
       message.success("Bienvenido al sistema");
-      window.location.href = "/expedientes";
+      navigate("/expedientes"); // SPA-friendly
     } catch (err: any) {
-      message.error(err.response?.data?.message ?? "Error al iniciar sesión");
-    } finally {
-      setLoading(false);
+      // si quieres, puedes capturar y relanzar el error en loginService
+      message.error(
+        err?.response?.data?.message ?? "Error al iniciar sesión"
+      );
     }
   };
 
