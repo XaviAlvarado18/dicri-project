@@ -1,9 +1,10 @@
 import type { NextFunction, Request, Response } from "express";
 import {
-    repoCambiarEstadoExpediente,
-    repoCrearExpediente,
-    repoListarExpedientes,
-    repoObtenerExpediente
+  repoCambiarEstadoExpediente,
+  repoCrearExpediente,
+  repoListarExpedientes,
+  repoObtenerExpediente,
+  repoObtenerExpedienteDetalle,
 } from "../repositories/expedientes.repo.js";
 
 export const crearExpediente = async (
@@ -146,6 +147,27 @@ export const rechazarExpediente = async (
       justificacion
     );
     res.json(actualizado);
+  } catch (error) {
+    next(error);
+  }
+};
+
+
+export const obtenerExpedienteDetalle = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  try {
+    const { id } = req.params;
+    const detalle = await repoObtenerExpedienteDetalle(Number(id));
+
+    if (!detalle) {
+      res.status(404).json({ message: "Expediente no encontrado" });
+      return;
+    }
+
+    res.json(detalle);
   } catch (error) {
     next(error);
   }

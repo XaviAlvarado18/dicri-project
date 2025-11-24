@@ -1,18 +1,15 @@
 import {
   DatePicker,
   Select,
-  Tag,
   Typography
 } from "antd";
-import type { ColumnsType } from "antd/es/table";
-import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import api from "../api/client";
 import ExpedientesFilters from "../components/ExpedientesFilters";
 import ExpedientesTable from "../components/ExpedientesTable";
 import Layout from "../components/Layout";
 import TableContainer from "../components/TableContainer";
-import type { Expediente } from "../types/models";
+import { useExpedientes } from "../hooks/useExpedientes";
+import { FiltrosExpedientes } from "../services/expedientes.services";
 // Si quieres seguir usando tus cards individuales, las puedes dejar:
 
 const { Title } = Typography;
@@ -26,92 +23,17 @@ interface Filtros {
 }
 
 export default function ExpedientesPage() {
-  const [expedientes, setExpedientes] = useState<Expediente[]>([]);
-  const [filtros, setFiltros] = useState<Filtros>({
-    estado: "",
-    fechaInicio: "",
-    fechaFin: "",
-  });
-  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const { expedientes, loading, recargar } = useExpedientes();
 
-  const cargarExpedientes = async (f: Filtros = filtros) => {
-    setLoading(true);
-    try {
-      const res = await api.get<Expediente[]>("/expedientes", { params: f });
-      setExpedientes(res.data);
-      setFiltros(f);
-    } finally {
-      setLoading(false);
-    }
+  // Cuando el usuario aplica filtros desde ExpedientesFilters
+  const handleFiltrar = (nuevosFiltros: FiltrosExpedientes) => {
+    // El hook se encarga de hacer la petición y actualizar el estado
+    void recargar(nuevosFiltros);
   };
 
-  const cargar = async (f: Filtros = filtros) => {
-    setLoading(true);
-    try {
-      const res = await api.get<Expediente[]>("/expedientes", {
-        params: f,
-      });
-      setExpedientes(res.data);
-      setFiltros(f);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    void cargar();
-  }, []);
-
-  const handleFilterSubmit = (values: any) => {
-    const { estado, rangoFechas } = values;
-    const nuevoFiltro: Filtros = {
-      estado: estado ?? "",
-      fechaInicio: rangoFechas?.[0]?.format("YYYY-MM-DD") ?? "",
-      fechaFin: rangoFechas?.[1]?.format("YYYY-MM-DD") ?? "",
-    };
-    void cargar(nuevoFiltro);
-  };
-
-  // Tabla estilo "Indicios registrados…" / "Expedientes"
-  // Ajusta los nombres de campos según tu modelo real de Expediente.
-  const columns: ColumnsType<any> = [
-    {
-      title: "No. Expediente",
-      dataIndex: "numeroExpediente", // o "NoExpediente" / lo que uses
-      key: "numeroExpediente",
-      width: 140,
-      render: (_, record) => record.numeroExpediente ?? record.IdExpediente,
-    },
-    {
-      title: "Fecha de Registro",
-      dataIndex: "fechaRegistro",
-      key: "fechaRegistro",
-      width: 160,
-    },
-    {
-      title: "Estado",
-      dataIndex: "estado",
-      key: "estado",
-      width: 140,
-      render: (estado: string) => {
-        let color = "default";
-        if (estado === "APROBADO") color = "green";
-        else if (estado === "RECHAZADO") color = "red";
-        else if (estado === "EN_REVISION") color = "blue";
-        else if (estado === "REGISTRADO") color = "gold";
-        return <Tag color={color}>{estado ?? "—"}</Tag>;
-      },
-    },
-    {
-      title: "Técnico Registrador",
-      dataIndex: "tecnicoRegistrador",
-      key: "tecnicoRegistrador",
-    },
-  ];
-
-   const handleFiltrar = (nuevosFiltros: Filtros) => {
-    void cargarExpedientes(nuevosFiltros);
+  const handleRowClick = (idExpediente: number) => {
+    navigate(`/expedientes/${idExpediente}`);
   };
 
 

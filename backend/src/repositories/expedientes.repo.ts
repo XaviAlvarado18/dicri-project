@@ -1,5 +1,5 @@
 import { getConnection, sql } from "../config/db.js";
-import type { Expediente } from "../types/models.js";
+import type { EvidenciaDetalle, Expediente, ExpedienteDetalle } from "../types/models.js";
 
 interface ListarExpedientesFiltro {
   estado?: string;
@@ -81,4 +81,31 @@ export const repoCambiarEstadoExpediente = async (
     .execute("sp_Expediente_CambiarEstado");
 
   return result.recordset[0] as Expediente;
+};
+
+
+/** Obtiene expediente + lista de evidencias */
+export const repoObtenerExpedienteDetalle = async (
+  idExpediente: number
+): Promise<ExpedienteDetalle | undefined> => {
+  const pool = await getConnection();
+
+  const result = await pool
+    .request()
+    .input("IdFile", sql.Int, idExpediente)
+    // Si hiciste el SP:
+    .execute("sp_Expediente_GetDetalle");
+    // Si prefieres query directa:
+    // .query(`... SQL de arriba ...`);
+
+  const expedienteRow = result.recordsets?.[0]?.[0];
+  if (!expedienteRow) return undefined;
+
+  const evidenciasRows = (result.recordsets?.[1] ?? []) as EvidenciaDetalle[];
+  const detalle: ExpedienteDetalle = {
+    ...expedienteRow,
+    Evidencias: evidenciasRows,
+  };
+
+  return detalle;
 };

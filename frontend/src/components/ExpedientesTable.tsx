@@ -8,41 +8,77 @@ interface ExpedientesTableProps {
   loading?: boolean;
 }
 
-export default function ExpedientesTable({ expedientes, loading = false }: ExpedientesTableProps) {
+export default function ExpedientesTable({
+  expedientes,
+  loading = false,
+}: ExpedientesTableProps) {
   const navigate = useNavigate();
 
   const columns: ColumnsType<Expediente> = [
     {
       title: "No. Expediente",
-      dataIndex: "numeroExpediente",
-      key: "numeroExpediente",
-      width: 140,
-      render: (_, record) => record.NumeroExpediente ?? record.IdExpediente,
+      dataIndex: "NumeroExpediente",
+      key: "NumeroExpediente",
+      width: 160,
+      render: (_, record) =>
+        record.NumeroExpediente ?? record.IdExpediente,
     },
     {
       title: "Fecha de Registro",
-      dataIndex: "fechaRegistro",
-      key: "fechaRegistro",
-      width: 160,
+      dataIndex: "FechaRegistro",
+      key: "FechaRegistro",
+      width: 200,
+      render: (value: string) => {
+        if (!value) return "—";
+        const fecha = new Date(value);
+        return fecha.toLocaleString("es-GT", {
+          year: "numeric",
+          month: "2-digit",
+          day: "2-digit",
+          hour: "2-digit",
+          minute: "2-digit",
+        });
+      },
     },
     {
       title: "Estado",
-      dataIndex: "estado",
-      key: "estado",
-      width: 140,
-      render: (estado: string) => {
-        let color = "default";
-        if (estado === "APROBADO") color = "green";
-        else if (estado === "RECHAZADO") color = "red";
-        else if (estado === "EN_REVISION") color = "blue";
-        else if (estado === "REGISTRADO") color = "gold";
-        return <Tag color={color}>{estado ?? "—"}</Tag>;
+      dataIndex: "EstadoCodigo",
+      key: "EstadoCodigo",
+      width: 160,
+      render: (_: string, record) => {
+        const codigo = record.EstadoCodigo; // FINAL, REJ, PROC, REG...
+        let color: string = "default";
+        let label = codigo;
+
+        console.warn("Estado código:", codigo);
+
+        switch (codigo) {
+          case "REG":
+            color = "gold";
+            label = "REGISTRADO";
+            break;
+          case "PROC":
+            color = "blue";
+            label = "EN REVISIÓN";
+            break;
+          case "FINAL":
+            color = "green";
+            label = "APROBADO";
+            break;
+          case "REJ":
+            color = "red";
+            label = "RECHAZADO";
+            break;
+        }
+
+        return <Tag color={color}>{label}</Tag>;
       },
     },
     {
       title: "Técnico Registrador",
-      dataIndex: "tecnicoRegistrador",
-      key: "tecnicoRegistrador",
+      dataIndex: "NombreTecnicoRegistro",
+      key: "NombreTecnicoRegistro",
+      render: (value: string) => value ?? "—",
     },
   ];
 
